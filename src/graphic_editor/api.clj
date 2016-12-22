@@ -8,13 +8,10 @@
 (defn I
   "Given a width and a height, creates a new image with the given sizes"
   [w h]
-  (if (every? #(and (pos? %) (< % v/max-size)) [w h])
-    (do
-      (swap! image-data assoc :cols w :rows h)
-      (swap! image-data assoc :items (into #{} (for [col (range w)
-                                                     row (range h)]
-                                                 {:x (inc col) :y (inc row) :color "O"}))))
-    (u/err-handler :invalid-args "I")))
+  (swap! image-data assoc :cols w :rows h)
+  (swap! image-data assoc :items (into #{} (for [col (range w)
+                                                 row (range h)]
+                                             {:x (inc col) :y (inc row) :color "O"}))))
 
 
 (defn C
