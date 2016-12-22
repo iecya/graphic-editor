@@ -50,11 +50,14 @@
 
 
 (defn S
+  "Display the current image state"
   []
   (let [sorted-items (u/sort-items)]
-    (->> sorted-items
-         (mapv #(u/get-row %))
-         (clojure.string/join "\n"))))
+    (println (->> sorted-items
+                  (mapv #(u/get-row %))
+                  (clojure.string/join "\n")))))
+
+
 
 
 (defn input->function
