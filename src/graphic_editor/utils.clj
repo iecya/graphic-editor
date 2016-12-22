@@ -6,6 +6,12 @@
   [x y]
   (some #(when (and (= x (:x %)) (= y (:y %))) %) (:items @image-data)))
 
+(defn ?pixel-color
+  "If pixel exist, returns its color"
+  [x y]
+  (when-let [px (?pixel x y)]
+    (:color px)))
+
 (defn sort-items
   []
   (->> (:items @image-data)
