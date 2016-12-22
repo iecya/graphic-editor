@@ -1,6 +1,7 @@
 (ns graphic-editor.validation
   (:require [schema.core :as sc]
-            [graphic-editor.data :refer [image-data]]))
+            [graphic-editor.data :refer [image-data]]
+            [clojure.string :as s]))
 
 (def max-size 250)
 (def min-size 1)
@@ -15,14 +16,17 @@
 
 (defn validate-args
   [f input]
-  (prn "f =" f)
-  (prn "args =" input)
   (case f
-    "I" (re-find #"[1-9]\s[1-9]" input)
+    "I" (let [foo (s/split input #"\s")]
+          (when (every? #(re-find #"\d+" %) foo)
+            (->> foo
+                 (mapv #(Integer. %))
+                 (every? #(<= 1 % 250)))))
     "C" (nil? input)
     "L" (re-find #"\d\s\d\s[A-Z]" input)
     "V" (re-find segment-regex input)
     "H" (re-find segment-regex input)
+    "F" (re-find #"\d\s\d\s[A-Z]" input)
     "S" (nil? input)
     nil))
 
@@ -31,20 +35,16 @@
   [f & [args]]
   (case f
     "V" (and (pos? (first args))
-             (< (first args) (:cols @image-data))
+             (<= (first args) (:cols @image-data))
              (pos? (second args))
-             (< (second args) (:rows @image-data))
-             (< (second args) (last args) (:rows @image-data)))
+             (apply < (rest args))
+             (<= (last args) (:rows @image-data)))
     "H" (and (pos? (first args))
-             (< (first args) (:cols @image-data))
-             (pos? (second args))
-             (< (second args) (:rows @image-data))
-             (< (second args) (last args) (:rows @image-data)))
+             (< (first args) (second args))
+             (<= (second args) (:cols @image-data))
+             (pos? (last args))
+             (<= (last args) (:rows @image-data)))
     nil))
-
-
-
-
 
 
 (def pixel-schema
@@ -63,3 +63,8 @@
    :rows  (sc/both sc/Num
                    (sc/pred #(<= min-size % max-size)))
    :items #{pixel-schema}})
+
+
+
+
+(let [x ()])
