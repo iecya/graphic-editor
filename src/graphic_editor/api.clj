@@ -58,22 +58,25 @@
 
 
 (defn input->function
+  "Takes the user input and calls the related function"
   [s]
-  (let [args-str    (s/split s #"\s")
-        f-name      (first args-str)
-        args        (mapv read-string (rest args-str))
-        valid-args? (v/validate-args f-name (when (< 1 (count (s/trim s))) (subs s 2)))
-        apply-fn    (fn [f] (if valid-args?
-                              (apply f args)
-                              (u/err-handler :invalid-args f-name)))]
-    (case f-name
-      "I" (apply-fn I)
-      "C" (apply-fn C)
-      "L" (apply-fn L)
-      "V" (apply-fn V)
-      "H" (apply-fn H)
-      "S" (apply-fn S)
-      (u/err-handler :invalid-function))))
+  (when-not (empty? s)
+    (let [args-str    (s/split s #"\s")
+          f-name      (first args-str)
+          args        (mapv read-string (rest args-str))
+          valid-args? (v/validate-args f-name (when (< 1 (count (s/trim s))) (subs s 2)))
+          apply-fn    (fn [f] (if valid-args?
+                                (apply f args)
+                                (u/err-handler :invalid-args f-name)))]
+      (case f-name
+        "I" (apply-fn I)
+        "C" (apply-fn C)
+        "L" (apply-fn L)
+        "V" (apply-fn V)
+        "H" (apply-fn H)
+        "F" (apply-fn F)
+        "S" (apply-fn S)
+        (u/err-handler :invalid-function f-name)))))
 
 
 
