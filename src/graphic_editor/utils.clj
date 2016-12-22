@@ -22,10 +22,10 @@
 
 (defn err-handler
   [err-type & [arg]]
-  (case err-type
-    :invalid-function (str "Sorry, function " arg " does not exist")
-    :invalid-args (str "Sorry, function " arg " received a wrong number or type of arguments")
-    :invalid-pixel (str "Pixel at coordinates(" (:x arg) ", " (:y arg) ") is not in the image")))
+  (println (case err-type
+             :invalid-function (str "Sorry, function " arg " does not exist")
+             :invalid-args (str "Sorry, function " arg " received a wrong number or type of arguments")
+             :invalid-pixel (str "Pixel at coordinates(" (:x arg) ", " (:y arg) ") is not in the image"))))
 
 (defn get-row
   [items]
