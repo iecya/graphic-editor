@@ -35,7 +35,7 @@
   "Given the x coordinate and the y coordinates of the first and last pixel, draws a vertical segment of the given color"
   [x ys ye c]
   (if-let [_ (v/validate-coords "V" [x ys ye])]
-    (for [row (range ys (inc ye))]
+    (doseq [row (range ys (inc ye))]
       (L x row c))
     (u/err-handler :invalid-args "V")))
 
@@ -43,8 +43,8 @@
 (defn H
   "Given the y coordinate and the x coordinates of the first and last pixel, draws an horizontal segment of the given color"
   [xs xe y c]
-  (if-let [_ (v/validate-coords "V" [xs xe y])]
-    (for [col (range xs (inc xe))]
+  (if-let [_ (v/validate-coords "H" [xs xe y])]
+    (doseq [col (range xs (inc xe))]
       (L col y c))
     (u/err-handler :invalid-args "H")))
 
