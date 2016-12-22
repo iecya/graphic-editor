@@ -1,6 +1,7 @@
 (ns graphic-editor.api
   (:require [clojure.string :as s]
             [graphic-editor.data :refer [image-data]]
+            [graphic-editor.matrix :as m]
             [graphic-editor.utils :as u]
             [graphic-editor.validation :as v]))
 
@@ -58,6 +59,27 @@
                   (clojure.string/join "\n")))))
 
 
+(defn F
+  "Fill a region, starting from the pixel at the given coords colors the pixel and all the neighbour pixels of the same color. Repeats for all the pixels in the region"
+  [x y c]
+  (let [M  (atom (m/create-matrix (:cols @image-data) (:rows @image-data)))
+        c0 (:color (u/?pixel x y))]
+    (letfn [(f-recur [x y c]
+              (reset! M (m/change @M x y true))
+              (L x y c)
+              (let [dx (dec x)
+                    ix (inc x)
+                    dy (dec y)
+                    iy (inc y)]
+                (when (and (pos? dx) (not (m/get-value @M dx y)) (= (u/?pixel-color dx y) c0))
+                  (f-recur dx y c))
+                (when (and (<= ix (:cols @image-data)) (not (m/get-value @M ix y)) (= (u/?pixel-color ix y) c0))
+                  (f-recur ix y c))
+                (when (and (pos? dy) (not (m/get-value @M x dy)) (= (u/?pixel-color x dy) c0))
+                  (f-recur x dy c))
+                (when (and (<= iy (:rows @image-data)) (not (m/get-value @M x iy)) (= (u/?pixel-color x iy) c0))
+                  (f-recur x iy c))))]
+      (f-recur x y c))))
 
 
 (defn input->function
