@@ -7,55 +7,55 @@
 
 (defn I
   "Given a width and a height, creates a new image with the given sizes"
-  [w h]
-  (swap! image-data assoc :cols w :rows h)
-  (swap! image-data assoc :items (into #{} (for [col (range w)
-                                                 row (range h)]
-                                             {:x (inc col) :y (inc row) :color "O"}))))
+  [w h img]
+  (assoc img :cols w
+             :rows h
+             :items (into #{} (for [col (range w)
+                                    row (range h)]
+                                {:x (inc col) :y (inc row) :color "O"}))))
 
 
 (defn C
   "Clears the table, setting all pixels color to O"
-  []
-  (let [items (into #{} (for [pixel (:items @image-data)]
-                          (assoc pixel :color "O")))]
-    (swap! image-data assoc :items items)))
+  [img]
+  (assoc img :items (into #{} (for [pixel (:items img)]
+                                (assoc pixel :color "O")))))
 
 
 (defn L
   "Given the coordinate of a pixel and a color, color the given pixel with the given color"
-  [x y c]
-  (if-let [pixel (u/?pixel x y)]
-    (do (swap! image-data update :items disj pixel)
-        (swap! image-data update :items conj (assoc pixel :color c)))
-    (u/err-handler :invalid-pixel {:x x :y y})))
+  [x y c img]
+  (if-let [pixel (u/?pixel x y img)]
+    (update img :items #(-> %
+                            (disj pixel)
+                            (conj (assoc pixel :color (str c)))))
+    (u/err-handler :invalid-pixel {:x x :y y} img)))
 
 
 (defn V
   "Given the x coordinate and the y coordinates of the first and last pixel, draws a vertical segment of the given color"
-  [x ys ye c]
-  (if-let [_ (v/validate-coords "V" [x ys ye])]
-    (doseq [row (range ys (inc ye))]
-      (L x row c))
-    (u/err-handler :invalid-args "V")))
+  [x' ys ye c img]
+  (if-let [_ (v/validate-coords "V" [x' ys ye] img)]
+    (update img :items (u/v-segment x' ys ye c))
+    (u/err-handler :invalid-args "V" img)))
 
 
 (defn H
   "Given the y coordinate and the x coordinates of the first and last pixel, draws an horizontal segment of the given color"
-  [xs xe y c]
-  (if-let [_ (v/validate-coords "H" [xs xe y])]
-    (doseq [col (range xs (inc xe))]
-      (L col y c))
-    (u/err-handler :invalid-args "H")))
+  [xs xe y' c img]
+  (if-let [_ (v/validate-coords "H" [xs xe y'] img)]
+    (update img :items (u/h-segment xs xe y' c))
+    (u/err-handler :invalid-args "H" img)))
 
 
 (defn S
   "Display the current image state"
-  []
-  (let [sorted-items (u/sort-items)]
+  [img]
+  (let [sorted-items (u/sort-items img)]
     (println (->> sorted-items
                   (mapv #(u/get-row %))
-                  (clojure.string/join "\n")))))
+                  (clojure.string/join "\n")))
+    img))
 
 
 (defn F
@@ -83,15 +83,15 @@
 
 (defn input->function
   "Takes the user input and calls the related function"
-  [s]
+  [s img]
   (when-not (empty? s)
     (let [args-str    (s/split s #"\s")
           f-name      (first args-str)
           args        (mapv read-string (rest args-str))
-          valid-args? (v/validate-args f-name (when (< 1 (count (s/trim s))) (subs s 2)))
+          valid-args? (v/validate-args f-name (when (< 1 (count (s/trim s))) (subs s 2)) img)
           apply-fn    (fn [f] (if valid-args?
-                                (apply f args)
-                                (u/err-handler :invalid-args f-name)))]
+                                (apply f (conj args img))
+                                (u/err-handler :invalid-args f-name img)))]
       (case f-name
         "I" (apply-fn I)
         "C" (apply-fn C)
@@ -100,7 +100,7 @@
         "H" (apply-fn H)
         "F" (apply-fn F)
         "S" (apply-fn S)
-        (u/err-handler :invalid-function f-name)))))
+        (u/err-handler :invalid-function f-name img)))))
 
 
 
