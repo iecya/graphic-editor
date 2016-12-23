@@ -1,17 +1,44 @@
 (ns graphic-editor.validation
-  (:require [schema.core :as sc]
-            [graphic-editor.data :refer [image-data]]
-            [clojure.string :as s]))
-
-(def max-size 250)
-(def min-size 1)
+  (:require [clojure.string :as s]))
 
 
-(def segment-regex #"\d\s\d\s\d\s[A-Z]")
+(defn validate-v-segment
+  [input img]
+  (let [args     (s/split input #"\s")
+        coords   (butlast args)
+        y-coords (rest coords)
+        x-coords (first coords)]
+    (when (and (every? #(re-find #"\d+" %) coords)
+               (re-find #"[A-Z]" (last args)))
+      (and (->> y-coords
+                (mapv #(Integer. %))
+                (every? #(<= 1 % (:rows img))))
+           (<= 1 (Integer. x-coords) (:cols img))))))
 
-(defn validate-f
-  [f]
-  (#{"I" "C" "L" "V" "H" "S"} f))
+
+(defn validate-h-segment
+  [input img]
+  (let [args     (s/split input #"\s")
+        coords   (butlast args)
+        y-coords (last coords)
+        x-coords (butlast coords)]
+    (when (and (every? #(re-find #"\d+" %) coords)
+               (re-find #"[A-Z]" (last args)))
+      (and (->> x-coords
+                (mapv #(Integer. %))
+                (every? #(<= 1 % (:cols img))))
+           (<= 1 (Integer. y-coords) (:rows img))))))
+
+
+(defn single-px-coords
+  [input img]
+  (let [args     (s/split input #"\s")
+        coords   (butlast args)
+        n-coords (mapv #(Integer. %) coords)]
+    (when (and (every? #(re-find #"\d+" %) coords)
+               (re-find #"[A-Z]" (last args)))
+      (and (<= 1 (first n-coords) (:cols img))
+           (<= 1 (last n-coords) (:rows img))))))
 
 
 (defn validate-args
