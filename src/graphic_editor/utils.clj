@@ -29,6 +29,29 @@
        vals
        (mapv #(sort-by :x %))))
 
+
+(defn v-segment
+  [x' ys ye c]
+  (fn [items]
+    (into #{} (for [{:keys [x y] :as px} items]
+                (if (and (= x x') (<= ys y ye))
+                  (do
+                    (disj items px)
+                    (assoc px :color (str c)))
+                  px)))))
+
+
+(defn h-segment
+  [xs xe y' c]
+  (fn [items]
+    (into #{} (for [{:keys [x y] :as px} items]
+                (if (and (= y y') (<= xs x xe))
+                  (do
+                    (disj items px)
+                    (assoc px :color (str c)))
+                  px)))))
+
+
 (defn err-handler
   [err-type arg img]
   (println (case err-type
