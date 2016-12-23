@@ -1,5 +1,5 @@
-(ns graphic-editor.utils
-  (:require [graphic-editor.data :refer [image-data]]))
+(ns graphic-editor.utils)
+
 
 (defn ?pixel
   "Checks if a pixel exists at the given coordinates"

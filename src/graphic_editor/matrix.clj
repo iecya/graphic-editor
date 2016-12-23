@@ -1,6 +1,5 @@
 (ns graphic-editor.matrix
-  (:require [graphic-editor.data :refer [image-data]]
-            [graphic-editor.utils :as u]))
+  (:require [graphic-editor.utils :as u]))
 
 
 (defn create-matrix [w h]
