@@ -15,6 +15,12 @@
   (when-let [px (?pixel x y img)]
     (:color px)))
 
+
+(defn same-color?
+  [px0 px]
+  (= (:color px0) (:color px)))
+
+
 (defn sort-items
   [img]
   (->> (:items img)
