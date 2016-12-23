@@ -12,8 +12,11 @@
 (defn -main
   []
   (println welcome-msg)
-  (loop [s (read-line)]
+  (let [image {:cols  1
+               :rows  1
+               :items #{{:x 1 :y 1 :color "O"}}}]
+    (loop [img image
+           s (read-line)]
     (if (or (= s "q") (= s "Q") (= s "quit") (= s "QUIT"))
       "Bye Bye!"
-      (do (api/input->function s)
-          (recur (read-line))))))
+      (recur (api/input->function s img) (read-line))))))
