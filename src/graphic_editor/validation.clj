@@ -72,26 +72,3 @@
              (pos? (last args))
              (<= (last args) (:rows @image-data)))
     nil))
-
-
-(def pixel-schema
-  "Schema for a single pixel of the image"
-  {:x     (sc/both sc/Num
-                   (sc/pred #(<= % (:cols @image-data))))
-   :y     (sc/both sc/Num
-                   (sc/pred #(<= % (:rows @image-data))))
-   :color sc/Str})
-
-
-(def image-data-schema
-  "Schema for the image data"
-  {:cols  (sc/both sc/Num
-                   (sc/pred #(pos? %)))
-   :rows  (sc/both sc/Num
-                   (sc/pred #(<= min-size % max-size)))
-   :items #{pixel-schema}})
-
-
-
-
-(let [x ()])
