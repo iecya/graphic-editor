@@ -42,18 +42,18 @@
 
 
 (defn validate-args
-  [f input]
+  [f input img]
   (case f
-    "I" (let [foo (s/split input #"\s")]
-          (when (every? #(re-find #"\d+" %) foo)
-            (->> foo
+    "I" (let [args (s/split input #"\s")]
+          (when (every? #(re-find #"\d+" %) args)
+            (->> args
                  (mapv #(Integer. %))
                  (every? #(<= 1 % 250)))))
     "C" (nil? input)
-    "L" (re-find #"\d\s\d\s[A-Z]" input)
-    "V" (re-find segment-regex input)
-    "H" (re-find segment-regex input)
-    "F" (re-find #"\d\s\d\s[A-Z]" input)
+    "L" (single-px-coords input img)
+    "V" (validate-v-segment input img)
+    "H" (validate-h-segment input img)
+    "F" (single-px-coords input img)
     "S" (nil? input)
     nil))
 
