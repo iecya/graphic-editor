@@ -59,16 +59,16 @@
 
 
 (defn validate-coords
-  [f & [args]]
+  [f coords img]
   (case f
-    "V" (and (pos? (first args))
-             (<= (first args) (:cols @image-data))
-             (pos? (second args))
-             (apply < (rest args))
-             (<= (last args) (:rows @image-data)))
-    "H" (and (pos? (first args))
-             (< (first args) (second args))
-             (<= (second args) (:cols @image-data))
-             (pos? (last args))
-             (<= (last args) (:rows @image-data)))
+    "V" (and (pos? (first coords))
+             (<= (first coords) (:cols img))
+             (pos? (second coords))
+             (apply < (rest coords))
+             (<= (last coords) (:rows img)))
+    "H" (and (pos? (first coords))
+             (< (first coords) (second coords))
+             (<= (second coords) (:cols img))
+             (pos? (last coords))
+             (<= (last coords) (:rows img)))
     nil))
