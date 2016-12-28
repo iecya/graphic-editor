@@ -96,7 +96,8 @@
   (println (case err-type
              :invalid-function (str "Sorry, function " arg " does not exist")
              :invalid-args (str "Sorry, function " arg " received a wrong number or type of arguments")
-             :invalid-pixel (str "Pixel at coordinates(" (:x arg) ", " (:y arg) ") is not in the image")))
+             :invalid-pixel (str "Pixel at coordinates(" (:x arg) ", " (:y arg) ") is not in the image")
+             :invalid-coords (str "Sorry, function " arg " received invalid coordinates")))
   img)
 
 
