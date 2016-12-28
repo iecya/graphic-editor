@@ -70,10 +70,9 @@
 
 (defn extend-list
   [l img]
-  (let [all-siblings     (mapcat (get-siblings img) l)
-        missing-siblings (filter (fn [s] (when (every? #(not= s %) l) s)) all-siblings)
-        cleared-siblings (distinct missing-siblings)]
-    (concat l cleared-siblings)))
+  (let [siblings         (mapcat (get-siblings img) l)
+        missing-siblings (filter (fn [s] (when (every? #(not= s %) l) s)) siblings)]
+    (concat l (distinct missing-siblings))))
 
 
 (defn fill
