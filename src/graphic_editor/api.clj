@@ -1,6 +1,5 @@
 (ns graphic-editor.api
   (:require [clojure.string :as s]
-            [graphic-editor.matrix :as m]
             [graphic-editor.utils :as u]
             [graphic-editor.validation :as v]))
 
