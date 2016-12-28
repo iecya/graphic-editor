@@ -5,7 +5,7 @@
 
 (def welcome-msg (str "\n\n\n=================================================\n\n\n"
                       (clojure.string/upper-case "***** Welcome to Graphic Editor *****")
-                      "\nTo quit the session, please type 'q', 'Q', 'quit' or 'QUIT'"
+                      "\nTo quit the session, please type 'X'"
                       "\n\n\n================================================="
                       "\n\n\n"))
 
@@ -17,6 +17,6 @@
                :items #{{:x 1 :y 1 :color "O"}}}]
     (loop [img image
            s (read-line)]
-    (if (or (= s "q") (= s "Q") (= s "quit") (= s "QUIT"))
+    (if (= s "X")
       "Bye Bye!"
       (recur (api/input->function s img) (read-line))))))
