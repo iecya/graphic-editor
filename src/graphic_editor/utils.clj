@@ -52,6 +52,45 @@
                   px)))))
 
 
+(defn color-region
+  [region clr]
+  (fn [items]
+    (into #{} (for [px items]
+                (if (some #(= px %) region)
+                  (do
+                    (disj items px)
+                    (assoc px :color clr))
+                  px)))))
+
+
+(defn get-siblings
+  [img]
+  "Returns a function that, for the given pixel, returns a list of its valid siblings of the same color"
+  (fn [{:keys [x y] :as px}]
+    (let [siblings (list (?pixel x (inc y) img)
+                         (?pixel x (dec y) img)
+                         (?pixel (dec x) y img)
+                         (?pixel (inc x) y img))]
+      (filter (fn [n] (and (not (nil? n))
+                           (same-color? px n))) siblings))))
+
+
+(defn extend-list
+  [l img]
+  (let [all-siblings     (mapcat (get-siblings img) l)
+        missing-siblings (filter (fn [s] (when (every? #(not= s %) l) s)) all-siblings)
+        cleared-siblings (distinct missing-siblings)]
+    (concat l cleared-siblings)))
+
+
+(defn fill
+  [l c img]
+  (let [extended-list (extend-list l img)]
+    (if-not (= l extended-list)
+      (fill extended-list c img)
+      (update img :items (color-region extended-list c)))))
+
+
 (defn err-handler
   [err-type arg img]
   (println (case err-type
@@ -64,3 +103,4 @@
 (defn get-row
   [items]
   (apply str (map :color items)))
+
