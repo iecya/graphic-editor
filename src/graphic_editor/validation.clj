@@ -1,5 +1,4 @@
-(ns graphic-editor.validation
-  (:require [clojure.string :as s]))
+(ns graphic-editor.validation)
 
 
 (defn validate-v-segment
