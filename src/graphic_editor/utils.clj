@@ -9,13 +9,6 @@
             px)) (:items img)))
 
 
-(defn ?pixel-color
-  "If pixel exist, returns its color"
-  [x y img]
-  (when-let [px (?pixel x y img)]
-    (:color px)))
-
-
 (defn same-color?
   [px0 px]
   (= (:color px0) (:color px)))
