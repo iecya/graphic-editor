@@ -1,36 +1,56 @@
 # graphic-editor
 
-FIXME: description
+A small app that simulates an image editor.
 
-## Installation
+## Allowed commands
 
-Download from http://example.com/FIXME.
+Commands only allows capital letters (both for command name and colors) and integers.
+
+Arguments are separated by one white space.
+
+Maximum size of the image is 250 * 250.
+
+
+
+
+### Commands' list
+
+1. **I M N**. Create a new M x N image with all pixels coloured white (O).
+
+2. **C**. Clears the table, setting all pixels to white (O).
+3. **L X Y C**. Colours the pixel (X,Y) with colour C.
+4. **V X Y1 Y2 C**. Draw a vertical segment of colour C in column X between rows Y1 and Y2
+(inclusive).
+5. **H X1 X2 Y C**. Draw a horizontal segment of colour C in row Y between columns X1 and X2
+(inclusive).
+6. **F X Y C**. Fill the region R with the colour C. R is defined as: Pixel (X,Y) belongs to R. Any other
+pixel which is the same colour as (X,Y) and shares a common side with any pixel in R also
+belongs to this region.
+7. **S**. Show the contents of the current image
+8. **X**. Terminate the session
+
+
+
 
 ## Usage
 
-FIXME: explanation
+Please follow these step to run the application.
 
-    $ java -jar graphic-editor-0.1.0-standalone.jar [args]
+1. Navigate to the project directory
+```
+cd <my-directory>/graphic-editor
+```
 
-## Options
 
-FIXME: listing of options this app accepts.
+2. Start the REPL
+```
+lein repl
+```
 
-## Examples
+3. Run the main function
+```
+(-main)
+```
 
-...
+4. Enjoy your editor!
 
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2016 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
