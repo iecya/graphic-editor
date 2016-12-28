@@ -36,7 +36,7 @@
   [x' ys ye c img]
   (if-let [_ (v/validate-coords "V" [x' ys ye] img)]
     (update img :items (u/v-segment x' ys ye c))
-    (u/err-handler :invalid-args "V" img)))
+    (u/err-handler :invalid-coords "V" img)))
 
 
 (defn H
@@ -44,7 +44,7 @@
   [xs xe y' c img]
   (if-let [_ (v/validate-coords "H" [xs xe y'] img)]
     (update img :items (u/h-segment xs xe y' c))
-    (u/err-handler :invalid-args "H" img)))
+    (u/err-handler :invalid-coords "H" img)))
 
 
 (defn S
@@ -59,7 +59,9 @@
 
 (defn F
   [x y c img]
-  (u/fill (list (u/?pixel x y img)) c img))
+  (if-let [px (u/?pixel x y img)]
+    (u/fill (list px) c img)
+    (u/err-handler :invalid-pixel {:x x :y y} img)))
 
 
 (defn input->function
