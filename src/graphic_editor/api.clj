@@ -69,7 +69,7 @@
     (let [args-str    (s/split s #"\s")
           f-name      (first args-str)
           args        (mapv read-string (rest args-str))
-          valid-args? (v/validate-args f-name (when (< 1 (count (s/trim s))) (subs s 2)) img)
+          valid-args? (v/validate-args f-name args img)
           apply-fn    (fn [f] (if valid-args?
                                 (apply f (conj args img))
                                 (u/err-handler :invalid-args f-name img)))]

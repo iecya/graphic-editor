@@ -3,72 +3,62 @@
 
 
 (defn validate-v-segment
-  [input img]
-  (let [args     (s/split input #"\s")
-        coords   (butlast args)
+  [args img]
+  (let [coords (butlast args)
         y-coords (rest coords)
         x-coords (first coords)]
-    (when (and (every? #(re-find #"\d+" %) coords)
-               (re-find #"[A-Z]" (last args)))
-      (and (->> y-coords
-                (mapv #(Integer. %))
-                (every? #(<= 1 % (:rows img))))
-           (<= 1 (Integer. x-coords) (:cols img))))))
+      (and (every? integer? coords)
+           (re-find #"[A-Z]" (str (last args)))
+           (every? #(<= 1 % (:rows img)) y-coords)
+           (<= 1 x-coords (:cols img)))))
 
 
 (defn validate-h-segment
-  [input img]
-  (let [args     (s/split input #"\s")
-        coords   (butlast args)
+  [args img]
+  (let [coords   (butlast args)
         y-coords (last coords)
         x-coords (butlast coords)]
-    (when (and (every? #(re-find #"\d+" %) coords)
-               (re-find #"[A-Z]" (last args)))
-      (and (->> x-coords
-                (mapv #(Integer. %))
-                (every? #(<= 1 % (:cols img))))
-           (<= 1 (Integer. y-coords) (:rows img))))))
+    (and (every? integer? coords)
+         (re-find #"[A-Z]" (str (last args)))
+         (every? #(<= 1 % (:cols img)) x-coords)
+         (<= 1 y-coords (:rows img)))))
 
 
 (defn single-px-coords
-  [input img]
-  (let [args     (s/split input #"\s")
-        coords   (butlast args)
-        n-coords (mapv #(Integer. %) coords)]
-    (when (and (every? #(re-find #"\d+" %) coords)
-               (re-find #"[A-Z]" (last args)))
-      (and (<= 1 (first n-coords) (:cols img))
-           (<= 1 (last n-coords) (:rows img))))))
+  [args img]
+  (let [coords (butlast args)]
+    (and (every? integer? coords)
+         (re-find #"[A-Z]" (str (last args)))
+         (<= 1 (first coords) (:cols img))
+         (<= 1 (last coords) (:rows img)))))
 
 
 (defn validate-args
-  [f input img]
+  [f args img]
   (case f
-    "I" (let [args (s/split input #"\s")]
-          (when (every? #(re-find #"\d+" %) args)
-            (->> args
-                 (mapv #(Integer. %))
-                 (every? #(<= 1 % 250)))))
-    "C" (nil? input)
-    "L" (single-px-coords input img)
-    "V" (validate-v-segment input img)
-    "H" (validate-h-segment input img)
-    "F" (single-px-coords input img)
-    "S" (nil? input)
+    "I" (every? #(and (integer? %)
+                      (<= 1 % 250)) args)
+    "C" (empty? args)
+    "L" (single-px-coords args img)
+    "V" (validate-v-segment args img)
+    "H" (validate-h-segment args img)
+    "F" (single-px-coords args img)
+    "S" (empty? args)
     nil))
 
 
 (defn validate-coords
   [f coords img]
-  (case f
-    "V" (and (pos? (first coords))
-             (<= (first coords) (:cols img))
-             (pos? (second coords))
-             (apply < (rest coords))
-             (<= (last coords) (:rows img)))
-    "H" (and (pos? (first coords))
-             (< (first coords) (second coords))
-             (<= (second coords) (:cols img))
-             (pos? (last coords))
-             (<= (last coords) (:rows img)))
-    nil))
+  (when (every? integer? coords)
+    (case f
+      "V" (and (pos? (first coords))
+               (<= (first coords) (:cols img))
+               (pos? (second coords))
+               (apply < (rest coords))
+               (<= (last coords) (:rows img)))
+      "H" (and (pos? (first coords))
+               (< (first coords) (second coords))
+               (<= (second coords) (:cols img))
+               (pos? (last coords))
+               (<= (last coords) (:rows img)))
+      nil)))
