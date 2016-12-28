@@ -36,21 +36,21 @@ belongs to this region.
 
 Please follow these step to run the application.
 
-1. Navigate to the project directory
+* Navigate to the project directory
 ```
 cd <my-directory>/graphic-editor
 ```
 
 
-2. Start the REPL
+* Start the REPL
 ```
 lein repl
 ```
 
-3. Run the main function
+* Run the main function
 ```
 (-main)
 ```
 
-4. Enjoy your editor!
+* Enjoy your editor!
 
