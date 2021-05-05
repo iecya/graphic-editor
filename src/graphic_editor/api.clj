@@ -1,67 +1,71 @@
 (ns graphic-editor.api
   (:require [clojure.string :as s]
             [graphic-editor.utils :as u]
-            [graphic-editor.validation :as v]))
+            [graphic-editor.validation :as v]
+            [clojure.string :as string]))
+
+;; THIS IS NOT AN API NAMESPACE (I think)
 
 
-(defn I
-  "Given a width and a height, creates a new image with the given sizes"
-  [w h img]
-  (assoc img :cols w
-             :rows h
-             :items (into #{} (for [col (range w)
-                                    row (range h)]
-                                {:x (inc col) :y (inc row) :color "O"}))))
+;; THE FUNCTION NAMES ARE HORRIBLE!
 
 
-(defn C
-  "Clears the table, setting all pixels color to O"
-  [img]
-  (assoc img :items (into #{} (for [pixel (:items img)]
-                                (assoc pixel :color "O")))))
+;; The image object could be a map of coords as keys and color as value
+;; i.e. {[x y] c}
+;; This way I could have a single function that reduces through the key-value pairs
+;; and applies the reducing function (passed in as argument)
 
+(defn new-image
+  [width height _img]
+  (into {}
+        (for [x (range width)
+              y (range height)]
+          [[x y] 0])))
 
-(defn L
-  "Given the coordinate of a pixel and a color, color the given pixel with the given color"
+(defn clear-image
+  [image]
+  ;; my first approach here was to reduce to the existing key-value pairs of the image
+  ;; and assoc every key in a new map (accumulator) assigning the default color 0
+  ;; I then thought that maybe this is a better and cleaner approach (not sure about performance)
+  (let [[width height] (-> image (keys) (sort) last)]
+    (new-image (inc width) (inc height) nil)))
+
+(defn color-pixel
   [x y c img]
-  (if-let [pixel (u/?pixel x y img)]
-    (update img :items #(-> %
-                            (disj pixel)
-                            (conj (assoc pixel :color (str c)))))
-    (u/err-handler :invalid-pixel {:x x :y y} img)))
+  {:pre [(and (every? integer? [x y c])
+              (map? img))]}
+  (assoc img [x y] c))
 
+(defn vertical-segment
+  [x ys ye c img]
+  {:pre [(true? (v/validate-coords :horizontal [x ys ye]))]}
+  (u/color-pixels  (v/get-segment-pixels :vertical x ys ye) c img))
 
-(defn V
-  "Given the x coordinate and the y coordinates of the first and last pixel, draws a vertical segment of the given color"
-  [x' ys ye c img]
-  (if-let [_ (v/validate-coords "V" [x' ys ye] img)]
-    (update img :items (u/v-segment x' ys ye c))
-    (u/err-handler :invalid-coords "V" img)))
+(defn horizontal-segment
+  [xs y xe c img]
+  {:pre [(true? (v/validate-coords :horizontal [xs y xe]))]}
+  (u/color-pixels (v/get-segment-pixels :horizontal xs y xe) c img))
 
+(defn get-rows
+  [rows]
+  (->> (vals rows)
+       (map (fn [pixels]
+              (map val pixels)))))
 
-(defn H
-  "Given the y coordinate and the x coordinates of the first and last pixel, draws an horizontal segment of the given color"
-  [xs xe y' c img]
-  (if-let [_ (v/validate-coords "H" [xs xe y'] img)]
-    (update img :items (u/h-segment xs xe y' c))
-    (u/err-handler :invalid-coords "H" img)))
-
-
-(defn S
-  "Display the current image state"
+(defn display-image
   [img]
-  (let [sorted-items (u/sort-items img)]
-    (println (->> sorted-items
-                  (mapv #(u/get-row %))
-                  (clojure.string/join "\n")))
-    img))
+  (println (->> img
+                (sort-by key)
+                (group-by (comp last first))
+                get-rows
+                (map #(string/join " " %))
+                (string/join "\n")))
+  img)
 
-
-(defn F
+(defn fill-region
   [x y c img]
-  (if-let [px (u/?pixel x y img)]
-    (u/fill (list px) c img)
-    (u/err-handler :invalid-pixel {:x x :y y} img)))
+  {:pre [(not (nil? (u/get-pixel x y img)))]}
+  (u/fill-area (list [x y]) c img))
 
 
 (defn input->function
@@ -70,19 +74,26 @@
   (when-not (empty? s)
     (let [args-str    (s/split s #"\s")
           f-name      (first args-str)
+
+          ;; read-string is not the safest way to read numeric values from strings
+          ;; by changing the color to be an Integer as well, the safest way to convert
+          ;; a string to a number is to coerce using java Int.
           args        (mapv read-string (rest args-str))
+
+          ;; Maybe a better use of Schema/Spec to validate args? Probably using {:pre} inside each function (as they might have different requirements)
+          ;; I can't use {:pre} inside each function if I want to display a user friendly message
           valid-args? (v/validate-args f-name args)
           apply-fn    (fn [f] (if valid-args?
                                 (apply f (conj args img))
                                 (u/err-handler :invalid-args f-name img)))]
       (case f-name
-        "I" (apply-fn I)
-        "C" (apply-fn C)
-        "L" (apply-fn L)
-        "V" (apply-fn V)
-        "H" (apply-fn H)
-        "F" (apply-fn F)
-        "S" (apply-fn S)
+        "I" (apply-fn new-image)
+        "C" (apply-fn clear-image)
+        "L" (apply-fn color-pixel)
+        "V" (apply-fn vertical-segment)
+        "H" (apply-fn horizontal-segment)
+        "F" (apply-fn fill-region)
+        "S" (apply-fn display-image)
         (u/err-handler :invalid-function f-name img)))))
 
 
